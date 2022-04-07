@@ -3,18 +3,24 @@ import { BaseModel, column, BelongsTo, belongsTo } from '@ioc:Adonis/Lucid/Orm'
 import User from 'App/Models/User'
 import Channel from 'App/Models/Channel'
 
-export default class Kick extends BaseModel {
+export default class ChannelUser extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public kickedUserId: number
-
-  @column()
-  public kickedBy: number
+  public userId: number
 
   @column()
   public channelId: number
+
+  @column.dateTime({ autoCreate: false })
+  public inviteAcceptedAt: DateTime
+
+  @column()
+  public isBanned: boolean
+
+  @column()
+  public isAdmin: boolean
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -23,14 +29,9 @@ export default class Kick extends BaseModel {
   public updatedAt: DateTime
 
   @belongsTo(() => User, {
-    foreignKey: 'kickedUserId',
+    foreignKey: 'userId',
   })
-  public receiver: BelongsTo<typeof User>
-
-  @belongsTo(() => User, {
-    foreignKey: 'kickedBy',
-  })
-  public sender: BelongsTo<typeof User>
+  public author: BelongsTo<typeof User>
 
   @belongsTo(() => Channel, {
     foreignKey: 'channelId',

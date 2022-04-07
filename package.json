@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@adonisjs/auth": "^8.0.12",
-    "@adonisjs/cli": "^4.0.13",
-    "@adonisjs/lucid": "^17.1.0",
-    "typescript": "^4.6.2"
-  }
-}
