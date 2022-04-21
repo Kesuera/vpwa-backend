@@ -6,7 +6,7 @@ export default class Channels extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.string('name').notNullable().unique()
+      table.string('name', 30).notNullable().unique()
       table.string('number_of_users').notNullable().defaultTo(1)
 
       /**
