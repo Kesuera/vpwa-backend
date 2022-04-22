@@ -30,3 +30,8 @@ Route.group(() => {
   Route.post('logout', 'AuthController.logout').middleware('auth')
   Route.get('me', 'AuthController.me').middleware('auth')
 }).prefix('auth')
+
+Route.group(() => {
+  Route.get('loadMessages/:name', 'TestMessageController.loadMessages')
+  Route.post('addMessage/:name', 'TestMessageController.addMessage')
+}).prefix('test')
