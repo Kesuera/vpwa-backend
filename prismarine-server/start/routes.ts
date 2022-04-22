@@ -32,6 +32,10 @@ Route.group(() => {
 }).prefix('auth')
 
 Route.group(() => {
+  Route.post('create', 'ChannelController.createChannel').middleware('auth')
+}).prefix('channel')
+
+Route.group(() => {
   Route.get('loadMessages/:name', 'TestMessageController.loadMessages')
   Route.post('addMessage/:name', 'TestMessageController.addMessage')
 }).prefix('test')

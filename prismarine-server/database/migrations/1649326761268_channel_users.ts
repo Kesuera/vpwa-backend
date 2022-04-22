@@ -22,7 +22,7 @@ export default class ChannelUsers extends BaseSchema {
         .onDelete('CASCADE')
       table.unique(['user_id', 'channel_id'])
 
-      table.timestamp('invite_accepted_at', { useTz: true })
+      table.timestamp('joined_at', { useTz: true })
       table.boolean('is_banned').notNullable().defaultTo(false)
       table.boolean('is_admin').notNullable().defaultTo(false)
 

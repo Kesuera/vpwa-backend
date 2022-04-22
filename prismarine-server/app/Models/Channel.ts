@@ -3,6 +3,7 @@ import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Message from 'App/Models/Message'
 import ChannelUser from 'App/Models/ChannelUser'
 import Kick from 'App/Models/Kick'
+import { ChannelType } from 'Contracts/enums'
 
 export default class Channel extends BaseModel {
   @column({ isPrimary: true })
@@ -10,6 +11,9 @@ export default class Channel extends BaseModel {
 
   @column()
   public name: string
+
+  @column()
+  public type: ChannelType
 
   @column()
   public numberOfUsers: number

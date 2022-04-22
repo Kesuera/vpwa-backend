@@ -1,4 +1,5 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
+import { ChannelType } from 'Contracts/enums'
 
 export default class Channels extends BaseSchema {
   protected tableName = 'channels'
@@ -7,6 +8,7 @@ export default class Channels extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
       table.string('name', 30).notNullable().unique()
+      table.enum('type', Object.values(ChannelType)).notNullable()
       table.string('number_of_users').notNullable().defaultTo(1)
 
       /**

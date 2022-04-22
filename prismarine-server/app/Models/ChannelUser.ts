@@ -13,14 +13,14 @@ export default class ChannelUser extends BaseModel {
   @column()
   public channelId: number
 
-  @column.dateTime({ autoCreate: false })
-  public inviteAcceptedAt: DateTime
+  @column()
+  public isAdmin: boolean
 
   @column()
   public isBanned: boolean
 
-  @column()
-  public isAdmin: boolean
+  @column.dateTime({ autoCreate: false })
+  public joinedAt: DateTime
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
