@@ -1,7 +1,15 @@
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
-import { column, beforeSave, BaseModel, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
-import ChannelUser from 'App/Models/ChannelUser'
+import {
+  column,
+  beforeSave,
+  BaseModel,
+  hasMany,
+  HasMany,
+  manyToMany,
+  ManyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
+import Channel from './Channel'
 import Message from 'App/Models/Message'
 import Kick from 'App/Models/Kick'
 
@@ -42,10 +50,21 @@ export default class User extends BaseModel {
   })
   public sentMessages: HasMany<typeof Message>
 
-  @hasMany(() => ChannelUser, {
-    foreignKey: 'userId',
+  @manyToMany(() => Channel, {
+    pivotTable: 'channel_users',
+    pivotForeignKey: 'user_id',
+    pivotRelatedForeignKey: 'channel_id',
+    pivotTimestamps: true,
   })
-  public channels: HasMany<typeof ChannelUser>
+  public channels: ManyToMany<typeof Channel>
+
+  @manyToMany(() => Channel, {
+    pivotTable: 'channel_users',
+    pivotForeignKey: 'user_id',
+    pivotRelatedForeignKey: 'channel_id',
+    pivotTimestamps: true,
+  })
+  public channelInvites: ManyToMany<typeof Channel>
 
   @hasMany(() => Kick, {
     foreignKey: 'kickedBy',
@@ -56,4 +75,9 @@ export default class User extends BaseModel {
     foreignKey: 'kickedUserId',
   })
   public receivedKicks: HasMany<typeof Kick>
+
+  @hasMany(() => Channel, {
+    foreignKey: 'adminId',
+  })
+  public ownChannels: HasMany<typeof Channel>
 }

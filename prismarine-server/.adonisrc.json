@@ -18,20 +18,15 @@
     "./start/kernel",
     {
       "file": "./start/wsKernel",
-      "environment": [
-        "web",
-        "test"
-      ],
+      "environment": ["web", "test"],
       "optional": true
     },
     {
       "file": "./start/socket",
-      "environment": [
-        "web",
-        "test"
-      ],
+      "environment": ["web", "test"],
       "optional": true
-    }
+    },
+    "./start/orm"
   ],
   "providers": [
     "./providers/AppProvider",
@@ -40,7 +35,5 @@
     "@adonisjs/auth",
     "@ruby184/adonis-socket.io"
   ],
-  "aceProviders": [
-    "@adonisjs/repl"
-  ]
+  "aceProviders": ["@adonisjs/repl"]
 }

@@ -24,7 +24,6 @@ export default class ChannelUsers extends BaseSchema {
 
       table.timestamp('joined_at', { useTz: true })
       table.boolean('is_banned').notNullable().defaultTo(false)
-      table.boolean('is_admin').notNullable().defaultTo(false)
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL

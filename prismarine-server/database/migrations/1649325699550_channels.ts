@@ -7,6 +7,7 @@ export default class Channels extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
+      table.integer('admin_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
       table.string('name', 30).notNullable().unique()
       table.enum('type', Object.values(ChannelType)).notNullable()
       table.string('number_of_users').notNullable().defaultTo(1)
