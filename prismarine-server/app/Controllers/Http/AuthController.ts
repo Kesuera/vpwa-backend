@@ -30,10 +30,10 @@ export default class AuthController {
   }
 
   async me({ auth }: HttpContextContract) {
-    // await auth.user!.load('channels', (channelQuery) => channelQuery.whereNotNullPivot('joined_at'))
-    // await auth.user!.load('channelInvites', (channelQuery) =>
-    //   channelQuery.whereNullPivot('joined_at')
-    // )
+    await auth.user!.load('channels', (channelQuery) => channelQuery.whereNotNullPivot('joined_at'))
+    await auth.user!.load('channelInvites', (channelQuery) =>
+      channelQuery.whereNullPivot('joined_at')
+    )
     return auth.user
   }
 }

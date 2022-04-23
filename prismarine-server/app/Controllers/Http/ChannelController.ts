@@ -19,4 +19,8 @@ export default class ChannelController {
     })
     return channel
   }
+
+  async getUsers({ params }: HttpContextContract) {
+    return this.channelRepository.getUsers(params.name)
+  }
 }

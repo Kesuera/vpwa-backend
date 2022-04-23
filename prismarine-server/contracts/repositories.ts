@@ -35,8 +35,16 @@ declare module '@ioc:Repositories/ChannelRepository' {
     updatedAt: string
   }
 
+  export interface SerializedUser {
+    id: number
+    username: string
+    email: string
+    fullname: string
+  }
+
   export interface ChannelRepositoryContract {
     create(name: string, adminId: number, type: 'public' | 'private'): Promise<SerializedChannel>
+    getUsers(channelName: string): Promise<SerializedUser[]>
   }
 
   const ChannelRepository: ChannelRepositoryContract
