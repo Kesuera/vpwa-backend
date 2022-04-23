@@ -1,12 +1,20 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
+import Channel from 'App/Models/Channel'
 import RegisterUserValidator from 'App/Validators/RegisterUserValidator'
+import { DateTime } from 'luxon'
 
 export default class AuthController {
   async register({ request }: HttpContextContract) {
     // if invalid, exception
     const data = await request.validate(RegisterUserValidator)
     const user = await User.create(data)
+    const general = await Channel.findByOrFail('name', 'general')
+    await user.related('channels').attach({
+      [general.id]: {
+        joined_at: DateTime.now(),
+      },
+    })
     return user
   }
 
@@ -22,10 +30,10 @@ export default class AuthController {
   }
 
   async me({ auth }: HttpContextContract) {
-    await auth.user!.load('channels', (channelQuery) => channelQuery.whereNotNullPivot('joined_at'))
-    await auth.user!.load('channelInvites', (channelQuery) =>
-      channelQuery.whereNullPivot('joined_at')
-    )
+    // await auth.user!.load('channels', (channelQuery) => channelQuery.whereNotNullPivot('joined_at'))
+    // await auth.user!.load('channelInvites', (channelQuery) =>
+    //   channelQuery.whereNullPivot('joined_at')
+    // )
     return auth.user
   }
 }
