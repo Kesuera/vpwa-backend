@@ -10,6 +10,7 @@ export default class ChannelSeeder extends BaseSeeder {
       {
         name: 'general',
         type: ChannelType.PUBLIC,
+        numberOfUsers: 0,
       },
     ])
   }

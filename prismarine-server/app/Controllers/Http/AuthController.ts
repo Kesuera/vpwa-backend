@@ -10,11 +10,13 @@ export default class AuthController {
     const data = await request.validate(RegisterUserValidator)
     const user = await User.create(data)
     const general = await Channel.findByOrFail('name', 'general')
+    general.numberOfUsers++
     await user.related('channels').attach({
       [general.id]: {
         joined_at: DateTime.now(),
       },
     })
+    general.save()
     return user
   }
 
