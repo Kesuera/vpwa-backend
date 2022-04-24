@@ -33,10 +33,4 @@ Route.group(() => {
 
 Route.group(() => {
   Route.post('create', 'ChannelController.createChannel').middleware('auth')
-  Route.get('users/:name', 'ChannelController.getUsers').middleware('auth')
 }).prefix('channel')
-
-Route.group(() => {
-  Route.get('loadMessages/:name', 'TestMessageController.loadMessages')
-  Route.post('addMessage/:name', 'TestMessageController.addMessage')
-}).prefix('test')
