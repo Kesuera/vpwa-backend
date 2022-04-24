@@ -5,12 +5,14 @@ import type {
 import Channel from 'App/Models/Channel'
 
 export default class MessageRepository implements MessageRepositoryContract {
-  public async getAll(channelName: string): Promise<SerializedMessage[]> {
+  public async firstLoad(channelName: string): Promise<SerializedMessage[]> {
     const channel = await Channel.query()
       .where('name', channelName)
-      .preload('messages', (messagesQuery) => messagesQuery.preload('author'))
+      .preload('messages', (messagesQuery) =>
+        messagesQuery.orderBy('createdAt', 'desc').limit(20).preload('author')
+      )
       .firstOrFail()
-
+    channel.messages.reverse()
     return channel.messages.map((message) => message.serialize() as SerializedMessage)
   }
 
