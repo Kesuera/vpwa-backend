@@ -18,6 +18,8 @@ export default class ChannelUserController {
     // user is not admin
     else {
       await auth.user?.related('channels').detach([channel.id])
+      channel.numberOfUsers--
+      channel.save()
       socket.broadcast.emit('user:leave', auth.user!.id)
     }
   }
