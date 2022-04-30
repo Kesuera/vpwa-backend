@@ -33,10 +33,16 @@ export default class AuthController {
 
   async me({ auth }: HttpContextContract) {
     await auth.user!.load('channels', (channelQuery) =>
-      channelQuery.whereNotNullPivot('joined_at').orderBy('name'.toLowerCase(), 'asc')
+      channelQuery
+        .whereNotNullPivot('joined_at')
+        .wherePivot('is_banned', false)
+        .orderBy('name'.toLowerCase(), 'asc')
     )
     await auth.user!.load('channelInvites', (channelQuery) =>
-      channelQuery.whereNullPivot('joined_at')
+      channelQuery
+        .whereNullPivot('joined_at')
+        .wherePivot('is_banned', false)
+        .orderBy('created_at', 'desc')
     )
     return auth.user
   }
