@@ -3,6 +3,7 @@ import type {
   SerializedChannelUser,
 } from '@ioc:Repositories/ChannelUserRepository'
 import Channel from 'App/Models/Channel'
+import User from 'App/Models/User'
 
 export default class ChannelRepository implements ChannelUserRepositoryContract {
   public async getAll(channelName: string): Promise<SerializedChannelUser[]> {

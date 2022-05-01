@@ -1,6 +1,11 @@
 import type { WsContextContract } from '@ioc:Ruby184/Socket.IO/WsContext'
 import User from 'App/Models/User'
 import { UserStatus } from 'Contracts/enums'
+import { inject } from '@adonisjs/core/build/standalone'
+import { InviteRepositoryContract } from '@ioc:Repositories/InviteRepository'
+import InviteRepository from 'App/Repositories/InviteRepository'
+import Channel from 'App/Models/Channel'
+import { DateTime } from 'luxon'
 
 export default class ActivityController {
   private getUserRoom(user: User): string {
@@ -74,5 +79,40 @@ export default class ActivityController {
         remoteSocket.emit('user:status', auth.user, status)
       }
     }
+  }
+  public async inviteUser(
+    { auth, socket }: WsContextContract,
+    username: string,
+    channelName: string
+  ) {
+    const channel = await Channel.findByOrFail('name', channelName)
+    const user = await User.findByOrFail('username', username)
+    await channel
+      .related('users')
+      .attach({
+        [user.id]: {
+          joined_at: null,
+        },
+      })
+      .finally(() => {
+        socket.to('user:' + user.id).emit('user:invite', channel)
+      })
+  }
+  public async acceptInvite({ auth, socket }: WsContextContract, channelName: string) {
+    const channel = await Channel.findByOrFail('name', channelName)
+    await channel
+      .related('users')
+      .sync(
+        {
+          [auth.user!.id]: {
+            joined_at: DateTime.now(),
+          },
+        },
+        false
+      )
+      .finally(() => {
+        console.log('acceptInvite', auth.user!.id)
+        socket.to('user:' + auth.user!.id).emit('user:accept', channel.name)
+      })
   }
 }
