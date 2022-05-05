@@ -87,6 +87,7 @@ export default class ActivityController {
   ) {
     const channel = await Channel.findByOrFail('name', channelName)
     const user = await User.findByOrFail('username', username)
+    //const invited = await channel.related('users').query().where('id', user.id).firstOrFail()
     await channel
       .related('users')
       .attach({
@@ -94,25 +95,26 @@ export default class ActivityController {
           joined_at: null,
         },
       })
-      .finally(() => {
-        socket.to('user:' + user.id).emit('user:invite', channel)
+      .then(() => {
+        socket.to('user:' + user.id).emit('user:invite', channel, auth.user)
       })
   }
   public async acceptInvite({ auth, socket }: WsContextContract, channelName: string) {
     const channel = await Channel.findByOrFail('name', channelName)
-    await channel
-      .related('users')
-      .sync(
-        {
-          [auth.user!.id]: {
-            joined_at: DateTime.now(),
-          },
+    await channel.related('users').sync(
+      {
+        [auth.user!.id]: {
+          joined_at: DateTime.now(),
         },
-        false
-      )
-      .finally(() => {
-        console.log('acceptInvite', auth.user!.id)
-        socket.to('user:' + auth.user!.id).emit('user:accept', channel.name)
-      })
+      },
+      false
+    )
+    return channel
+  }
+
+  public async rejectInvite({ auth, socket }: WsContextContract, channelName: string) {
+    const channel = await Channel.findByOrFail('name', channelName)
+    await channel.related('users').detach([auth.user!.id])
+    return channel
   }
 }
