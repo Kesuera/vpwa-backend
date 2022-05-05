@@ -14,6 +14,9 @@ Ws.namespace('/')
   .disconnected('ActivityController.onDisconnected')
   .on('notifyStatus', 'ActivityController.notifyStatus')
   .on('getStatus', 'ActivityController.getStatus')
+  .on('inviteUser', 'ActivityController.inviteUser')
+  .on('acceptInvite', 'ActivityController.acceptInvite')
+  .on('rejectInvite', 'ActivityController.rejectInvite')
 
 // this is dynamic namespace, in controller methods we can use params.name
 Ws.namespace('channels/:name')

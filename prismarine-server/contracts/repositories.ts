@@ -44,3 +44,12 @@ declare module '@ioc:Repositories/ChannelUserRepository' {
   const ChannelUserRepository: ChannelUserRepositoryContract
   export default ChannelUserRepository
 }
+
+declare module '@ioc:Repositories/InviteRepository' {
+  export interface InviteRepositoryContract {
+    invite(channelName: string, username: string)
+  }
+
+  const InviteRepository: InviteRepositoryContract
+  export default InviteRepository
+}
