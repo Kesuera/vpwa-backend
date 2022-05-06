@@ -21,6 +21,7 @@ Ws.namespace('/')
 // this is dynamic namespace, in controller methods we can use params.name
 Ws.namespace('channels/:name')
   .middleware('channel')
+  .connected('ChannelUserController.onConnected')
   .on('loadMessages', 'MessageController.loadMessages')
   .on('addMessage', 'MessageController.addMessage')
   .on('loadUsers', 'ChannelUserController.loadUsers')

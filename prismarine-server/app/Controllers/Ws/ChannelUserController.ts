@@ -8,9 +8,12 @@ import User from 'App/Models/User'
 export default class ChannelUserController {
   constructor(private channelUserRepository: ChannelUserRepositoryContract) {}
 
+  public async onConnected({ socket, auth }: WsContextContract) {
+    socket.broadcast.emit('user', auth.user)
+  }
+
   public async leaveChannel({ params, auth, socket }: WsContextContract) {
     const channel = await Channel.findByOrFail('name', params.name)
-
     // user is admin
     if (auth.user!.id === channel.adminId) {
       await channel.delete()

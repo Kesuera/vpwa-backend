@@ -101,14 +101,20 @@ export default class ActivityController {
   }
   public async acceptInvite({ auth, socket }: WsContextContract, channelName: string) {
     const channel = await Channel.findByOrFail('name', channelName)
-    await channel.related('users').sync(
-      {
-        [auth.user!.id]: {
-          joined_at: DateTime.now(),
+    await channel
+      .related('users')
+      .sync(
+        {
+          [auth.user!.id]: {
+            joined_at: DateTime.now(),
+          },
         },
-      },
-      false
-    )
+        false
+      )
+      .then(() => {
+        channel.numberOfUsers++
+        channel.save()
+      })
     return channel
   }
 
