@@ -17,6 +17,7 @@ Ws.namespace('/')
   .on('inviteUser', 'ActivityController.inviteUser')
   .on('acceptInvite', 'ActivityController.acceptInvite')
   .on('rejectInvite', 'ActivityController.rejectInvite')
+  .on('joinCommand', 'ActivityController.joinCommand')
 
 // this is dynamic namespace, in controller methods we can use params.name
 Ws.namespace('channels/:name')
