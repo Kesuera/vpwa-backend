@@ -23,9 +23,7 @@ export default class ActivityController {
     }
 
     // add this socket to user room
-    console.log(socket.rooms)
     socket.join(room)
-    console.log(socket.rooms)
     // add userId to data shared between Socket.IO servers
     // https://socket.io/docs/v4/server-api/#namespacefetchsockets
     socket.data.userId = auth.user!.id
@@ -49,7 +47,6 @@ export default class ActivityController {
   public async onDisconnected({ socket, auth, logger }: WsContextContract, reason: string) {
     const room = this.getUserRoom(auth.user!)
     const userSockets = await socket.in(room).allSockets()
-    console.log(socket.rooms)
 
     // user is disconnected
     if (userSockets.size === 0) {
@@ -131,19 +128,17 @@ export default class ActivityController {
     const channel = await Channel.findBy('name', channelName)
     if (channel) {
       if (channel.type === ChannelType.PUBLIC) {
-        /*await auth.user!.related('channels').attach({
+        await auth.user!.related('channels').attach({
           [channel.id]: {
             joined_at: DateTime.now(),
           },
         })
-        return channel*/
-        socket.to('user:' + auth.user?.id).emit('user:join', channel)
-        return
+        return channel
       } else if (channel.type === ChannelType.PRIVATE) {
-        return Error('This is a private channel')
+        return null
       }
     } else {
-      /*//const data = await request.validate(CreateChannelValidator)
+      //const data = await request.validate(CreateChannelValidator) TODO validator
       const channel = await Channel.create({
         name: channelName,
         type: ChannelType.PUBLIC === type ? ChannelType.PUBLIC : ChannelType.PRIVATE,
@@ -154,11 +149,7 @@ export default class ActivityController {
           joined_at: DateTime.now(),
         },
       })
-      return channel*/
-      console.log('created', auth.user?.id, socket.rooms, channelName)
-      socket.to('user:' + auth.user?.id).emit('user:create', channelName, type)
-      console.log('created2', socket.rooms, channelName)
-      return
+      return channel
     }
   }
 }
