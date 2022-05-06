@@ -152,4 +152,15 @@ export default class ActivityController {
       return channel
     }
   }
+
+  public async revoke({ auth, socket }: WsContextContract, channelName: string, username: string) {
+    const channel = await Channel.findByOrFail('name', channelName)
+    const user = await User.findByOrFail('username', username)
+    if (auth.user?.id === channel.adminId) {
+      await channel.related('users').detach([user.id])
+      socket.to('user:' + user.id).emit('user:revoke', channel)
+      return channel
+    }
+    return null
+  }
 }
