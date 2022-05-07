@@ -153,6 +153,26 @@ export default class ActivityController {
     const channel = await Channel.findBy('name', channelName)
 
     if (channel) {
+      const lastMessage = await channel
+        .related('messages')
+        .query()
+        .orderBy('created_at', 'desc')
+        .first()
+      if (lastMessage !== null && Math.abs(lastMessage.createdAt.diffNow().as('days')) > 30) {
+        await channel.delete()
+        socket.broadcast.emit('user:delete', channel) //TODO check
+        const newChannel = await Channel.create({
+          name: channelName,
+          type: ChannelType.PUBLIC === type ? ChannelType.PUBLIC : ChannelType.PRIVATE,
+          adminId: auth.user!.id,
+        })
+        await auth.user!.related('channels').attach({
+          [newChannel.id]: {
+            joined_at: DateTime.now(),
+          },
+        })
+        return newChannel
+      }
       if (channel.type === ChannelType.PUBLIC) {
         return await auth
           .user!.related('channels')
