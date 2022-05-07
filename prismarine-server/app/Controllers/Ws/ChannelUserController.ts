@@ -21,7 +21,17 @@ export default class ChannelUserController {
     }
     // user is not admin
     else {
-      await auth.user?.related('channels').detach([channel.id])
+      const channelUser = await auth
+        .user!.related('channels')
+        .pivotQuery()
+        .where('channel_id', channel.id)
+        .firstOrFail()
+
+      if (channelUser.is_banned) {
+        return
+      }
+
+      await auth.user!.related('channels').detach([channel.id])
       channel.numberOfUsers--
       channel.save()
       socket.broadcast.emit('user:leave', auth.user!.id)
@@ -51,6 +61,8 @@ export default class ChannelUserController {
         },
         false
       )
+      channel.numberOfUsers--
+      channel.save()
       socket.nsp.emit('user:kick', user.id)
     }
     // user is not admin
@@ -68,6 +80,8 @@ export default class ChannelUserController {
           },
           false
         )
+        channel.numberOfUsers--
+        channel.save()
         socket.nsp.emit('user:kick', user.id)
       }
     }
@@ -88,6 +102,8 @@ export default class ChannelUserController {
       },
       false
     )
+    channel.numberOfUsers--
+    channel.save()
     socket.nsp.emit('user:revoke', user.id)
   }
 }

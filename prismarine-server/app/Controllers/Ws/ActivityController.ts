@@ -1,9 +1,6 @@
 import type { WsContextContract } from '@ioc:Ruby184/Socket.IO/WsContext'
 import User from 'App/Models/User'
 import { ChannelType, UserStatus } from 'Contracts/enums'
-import { inject } from '@adonisjs/core/build/standalone'
-import { InviteRepositoryContract } from '@ioc:Repositories/InviteRepository'
-import InviteRepository from 'App/Repositories/InviteRepository'
 import Channel from 'App/Models/Channel'
 import { DateTime } from 'luxon'
 
@@ -87,16 +84,44 @@ export default class ActivityController {
   ) {
     const channel = await Channel.findByOrFail('name', channelName)
     const user = await User.findByOrFail('username', username)
-    //const invited = await channel.related('users').query().where('id', user.id).firstOrFail()
-    await channel
-      .related('users')
-      .attach({
-        [user.id]: {
-          joined_at: null,
-        },
+    await user
+      .related('channels')
+      .pivotQuery()
+      .where('channel_id', channel.id)
+      .firstOrFail()
+      .then(async (channelUser) => {
+        if (channelUser.is_banned && auth.user!.id === channel.adminId) {
+          const kicks = await user.related('receivedKicks').query().where('channelId', channel.id)
+          kicks.forEach((kick) => kick.delete())
+          await user
+            .related('channels')
+            .sync(
+              {
+                [channel.id]: {
+                  joined_at: null,
+                  is_banned: false,
+                },
+              },
+              false
+            )
+            .then(() => {
+              socket.to('user:' + user.id).emit('user:invite', channel, auth.user)
+            })
+        } else {
+          throw 'User is banned from this channel.'
+        }
       })
-      .then(() => {
-        socket.to('user:' + user.id).emit('user:invite', channel, auth.user)
+      .catch(async () => {
+        await channel
+          .related('users')
+          .attach({
+            [user.id]: {
+              joined_at: DateTime.now(),
+            },
+          })
+          .then(() => {
+            socket.to('user:' + user.id).emit('user:invite', channel, auth.user)
+          })
       })
   }
   public async acceptInvite({ auth, socket }: WsContextContract, channelName: string) {
@@ -126,16 +151,30 @@ export default class ActivityController {
 
   public async joinCommand({ auth, socket }: WsContextContract, channelName: string, type: string) {
     const channel = await Channel.findBy('name', channelName)
+
     if (channel) {
       if (channel.type === ChannelType.PUBLIC) {
-        await auth.user!.related('channels').attach({
-          [channel.id]: {
-            joined_at: DateTime.now(),
-          },
-        })
-        return channel
+        return await auth
+          .user!.related('channels')
+          .pivotQuery()
+          .where('channel_id', channel.id)
+          .firstOrFail()
+          .then(() => {
+            // user is banned
+            throw 'You are banned from this channel.'
+          })
+          .catch(async () => {
+            await auth.user!.related('channels').attach({
+              [channel.id]: {
+                joined_at: DateTime.now(),
+              },
+            })
+            channel.numberOfUsers++
+            channel.save()
+            return channel
+          })
       } else if (channel.type === ChannelType.PRIVATE) {
-        return null
+        throw 'Channel is private.'
       }
     } else {
       //const data = await request.validate(CreateChannelValidator) TODO validator
