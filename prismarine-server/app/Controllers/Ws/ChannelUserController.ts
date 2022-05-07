@@ -72,4 +72,22 @@ export default class ChannelUserController {
       }
     }
   }
+
+  public async revoke({ params, auth, socket }: WsContextContract, username: string) {
+    const channel = await Channel.query()
+      .where('name', params.name)
+      .where('adminId', auth.user!.id)
+      .firstOrFail()
+    const user = await User.findByOrFail('username', username)
+    await user.related('channels').sync(
+      {
+        [channel.id]: {
+          joined_at: null,
+          is_banned: true,
+        },
+      },
+      false
+    )
+    socket.nsp.emit('user:revoke', user.id)
+  }
 }
