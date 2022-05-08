@@ -116,7 +116,7 @@ export default class ActivityController {
           .related('users')
           .attach({
             [user.id]: {
-              joined_at: DateTime.now(),
+              joined_at: null,
             },
           })
           .then(() => {
