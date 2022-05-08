@@ -107,8 +107,10 @@ export default class ActivityController {
             .then(() => {
               socket.to('user:' + user.id).emit('user:invite', channel, auth.user)
             })
-        } else {
+        } else if (channelUser.is_banned) {
           throw 'User is banned from this channel.'
+        } else {
+          return
         }
       })
       .catch(async () => {
@@ -124,7 +126,7 @@ export default class ActivityController {
           })
       })
   }
-  public async acceptInvite({ auth, socket }: WsContextContract, channelName: string) {
+  public async acceptInvite({ auth }: WsContextContract, channelName: string) {
     const channel = await Channel.findByOrFail('name', channelName)
     await channel
       .related('users')
@@ -143,7 +145,7 @@ export default class ActivityController {
     return channel
   }
 
-  public async rejectInvite({ auth, socket }: WsContextContract, channelName: string) {
+  public async rejectInvite({ auth }: WsContextContract, channelName: string) {
     const channel = await Channel.findByOrFail('name', channelName)
     await channel.related('users').detach([auth.user!.id])
     return channel
@@ -174,15 +176,11 @@ export default class ActivityController {
         return newChannel
       }
       if (channel.type === ChannelType.PUBLIC) {
-        return await auth
+        await auth
           .user!.related('channels')
           .pivotQuery()
           .where('channel_id', channel.id)
           .firstOrFail()
-          .then(() => {
-            // user is banned
-            throw 'You are banned from this channel.'
-          })
           .catch(async () => {
             await auth.user!.related('channels').attach({
               [channel.id]: {
@@ -193,6 +191,7 @@ export default class ActivityController {
             channel.save()
             return channel
           })
+        throw 'You are banned from this channel.'
       } else if (channel.type === ChannelType.PRIVATE) {
         throw 'Channel is private.'
       }
