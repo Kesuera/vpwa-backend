@@ -28,6 +28,7 @@ export default class CreateChannelValidator {
     name: schema.string({}, [
       rules.minLength(4),
       rules.maxLength(30),
+      rules.alpha(),
       rules.unique({ table: 'channels', column: 'name' }),
     ]),
     type: schema.enum(Object.values(ChannelType)),
